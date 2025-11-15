@@ -1,4 +1,5 @@
 # novuatoreda
+
 Find space rocks and trade w/ them type shi
 To install dependencies:
 
