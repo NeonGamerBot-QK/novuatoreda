@@ -9,7 +9,8 @@
   "devDependencies": {
     "@types/bun": "latest",
     "@types/node": "^24.10.0",
-    "@types/react": "^19.2.2"
+    "@types/react": "^19.2.2",
+    "@types/socket.io": "^3.0.2"
   },
   "peerDependencies": {
     "typescript": "^5"
@@ -20,6 +21,8 @@
     "commander": "^14.0.2",
     "ink": "^6.4.0",
     "ora": "^9.0.0",
-    "react": "^19.2.0"
+    "react": "^19.2.0",
+    "socket.io": "^4.8.1",
+    "socket.io-server": "^1.0.0-b"
   }
 }

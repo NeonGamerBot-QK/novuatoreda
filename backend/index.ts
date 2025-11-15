@@ -1,9 +1,12 @@
 // bun sqlite
 import express from "express";
 import { Database } from "bun:sqlite";
-
+import http from "http"
+import SocketIoServer from "socket.io-server"
 const db = new Database("db.sqlite");
 const app = express();
+const server = http.createServer(app)
+const io = new SocketIoServer(server)
 const registerUserTransaction = db.prepare(
   "INSERT INTO users (name, password_hash) VALUES (?, ?)",
 );
@@ -64,11 +67,54 @@ async function loginMiddleware(req, res, next) {
     });
   }
 }
+
 app.post("/get_my_server_info", loginMiddleware, (req, res) => {
   //@ts-ignore
   res.json(req.userData!);
 });
-// todo: socket io
-app.listen(process.env.PORT || 3000, () => {
+const active_users: any[] = []
+
+// Socket.IO auth middleware
+io.use(async (socket, next) => {
+  const authHeader = socket.handshake.headers["authorization"];
+  if (!authHeader) {
+    return next(new Error("no auth key??"));
+  }
+
+  const base64Credentials = authHeader.split(" ")[1];
+  const credentials = Buffer.from(base64Credentials, "base64").toString("utf-8");
+  const [name, password] = credentials.split(":");
+
+  if (!name || !password) {
+    return next(new Error("no user or pass??"));
+  }
+
+  const userData = await getUserByUserName.get(name);
+  if (!userData) {
+    return next(new Error("no user??"));
+  }
+
+  //@ts-ignore shut yo ass up old sport
+  const isValidPass = Bun.password.verifySync(password, userData.password_hash!);
+  if (isValidPass) {
+    socket.data.user = userData;
+    next();
+  } else {
+    next(new Error("bad password ;p"));
+  }
+});
+
+io.on("connect", socket => {
+  const user = socket.data.user;
+  console.log(`User ${user.name} connected`);
+  active_users.push(user);
+
+  socket.on("disconnect", () => {
+    const index = active_users.findIndex(u => u.id === user.id);
+    if (index !== -1) active_users.splice(index, 1);
+  });
+})
+server.listen(process.env.PORT || 3000, () => {
   console.log(`app uppies`);
 });
+
