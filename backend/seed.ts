@@ -17,20 +17,23 @@ const insertStmt = db.prepare(
 );
 
 for (const d of data) {
-  insertStmt.run(d.name, d.density)
+  insertStmt.run(d.name, d.density);
 }
 // Create users table
-db.query(`
+db.query(
+  `
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     password_hash TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
-`).run();
+`,
+).run();
 
 // Create trades table
-db.query(`
+db.query(
+  `
   CREATE TABLE IF NOT EXISTS trades (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     trade_name TEXT NOT NULL,
@@ -42,7 +45,8 @@ db.query(`
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (initiator_user_id) REFERENCES users(id)
   );
-`).run();
+`,
+).run();
 
 console.log("Database tables created successfully");
 db.close();
