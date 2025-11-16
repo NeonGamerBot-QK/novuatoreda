@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 export function useAccount() {
   const [config, setConfig] = useState<any>(null);
@@ -27,10 +27,14 @@ export function useAccount() {
 
   const saveAccount = async (username: string, password: string) => {
     try {
-      const newConfig = { username, password, setup: true, passwordHash: Bun.password.hashSync(password) };
+      const newConfig = {
+        username,
+        password,
+        setup: true,
+        passwordHash: Bun.password.hashSync(password),
+      };
       await Bun.write("./data.json", JSON.stringify(newConfig, null, 2));
       setConfig(newConfig);
-
     } catch (e) {
       setError(e as Error);
     }
