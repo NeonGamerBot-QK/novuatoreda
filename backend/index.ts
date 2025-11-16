@@ -2,11 +2,11 @@
 import express from "express";
 import { Database } from "bun:sqlite";
 import http from "http";
-import SocketIoServer from "socket.io-server";
+import { Server } from "socket.io";
 const db = new Database("db.sqlite");
 const app = express();
 const server = http.createServer(app);
-const io = new SocketIoServer(server);
+const io = new Server(server);
 const registerUserTransaction = db.prepare(
   "INSERT INTO users (name, password_hash) VALUES (?, ?)",
 );
@@ -76,6 +76,7 @@ const active_users: any[] = [];
 
 // Socket.IO auth middleware
 io.use(async (socket, next) => {
+  console.debug(`socket auth`)
   const authHeader = socket.handshake.headers["authorization"];
   if (!authHeader) {
     return next(new Error("no auth key??"));
@@ -99,6 +100,7 @@ io.use(async (socket, next) => {
   //@ts-ignore shut yo ass up old sport
   const isValidPass = Bun.password.verifySync(
     password,
+    //@ts-ignore
     userData.password_hash!,
   );
   if (isValidPass) {
@@ -109,7 +111,7 @@ io.use(async (socket, next) => {
   }
 });
 
-io.on("connect", (socket) => {
+io.on("connection", (socket) => {
   const user = socket.data.user;
   console.log(`User ${user.name} connected`);
   active_users.push(user);
