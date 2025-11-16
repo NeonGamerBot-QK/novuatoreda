@@ -4,6 +4,7 @@ import { render, Box, Text } from "ink";
 import socketIoClient from "socket.io-client";
 
 const Counter = () => {
+  const account = useAccount();
   const socket = socketIoClient("http://localhost:3000");
   const [error, setError] = useState<string | null>(null);
   socket.on("connect_error", (e) => {
