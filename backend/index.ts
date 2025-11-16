@@ -76,7 +76,7 @@ const active_users: any[] = [];
 
 // Socket.IO auth middleware
 io.use(async (socket, next) => {
-  console.debug(`socket auth`)
+  console.debug(`socket auth`);
   const authHeader = socket.handshake.headers["authorization"];
   if (!authHeader) {
     return next(new Error("no auth key??"));
