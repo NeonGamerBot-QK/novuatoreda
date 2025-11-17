@@ -20,11 +20,14 @@ export function HandleSetup() {
     try {
       const hashedPassword = await Bun.password.hash(password);
 
-      const regResponse = await fetch("http://localhost:3000/register_account", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, passhash: hashedPassword }),
-      });
+      const regResponse = await fetch(
+        "http://localhost:3000/register_account",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, passhash: hashedPassword }),
+        },
+      );
 
       if (!regResponse.ok) {
         const data: any = await regResponse.json();
@@ -33,13 +36,16 @@ export function HandleSetup() {
       }
 
       const authHeader = `Basic ${Buffer.from(`${name}:${password}`).toBase64()}`;
-      const userResponse = await fetch("http://localhost:3000/get_my_server_info", {
-        method: "POST",
-        headers: { "Authorization": authHeader },
-      });
+      const userResponse = await fetch(
+        "http://localhost:3000/get_my_server_info",
+        {
+          method: "POST",
+          headers: { Authorization: authHeader },
+        },
+      );
 
       if (!userResponse.ok) {
-        setError("Failed to fetch user data 1 " + await userResponse.text());
+        setError("Failed to fetch user data 1 " + (await userResponse.text()));
         return;
       }
 
