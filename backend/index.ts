@@ -126,8 +126,8 @@ io.on("connection", (socket) => {
   console.log(`User ${user.name} connected`);
   active_users.push(user);
   socket.on("rocks_req", async () => {
-    socket.emit('rocks', await db.query("select * from seeded_rocks;").all())
-  })
+    socket.emit("rocks", await db.query("select * from seeded_rocks;").all());
+  });
   socket.on("disconnect", () => {
     const index = active_users.findIndex((u) => u.id === user.id);
     if (index !== -1) active_users.splice(index, 1);
