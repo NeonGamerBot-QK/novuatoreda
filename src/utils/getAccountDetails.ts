@@ -32,18 +32,21 @@ export function useAccount() {
       if (!userInfo) {
         const authHeader = `Basic ${Buffer.from(`${user}:${pass}`).toBase64()}`;
 
-        const response = await fetch("http://localhost:3000/get_my_server_info", {
-          method: "POST",
-          headers: { "Authorization": authHeader },
-        });
-
+        const response = await fetch(
+          "http://localhost:3000/get_my_server_info",
+          {
+            method: "POST",
+            headers: { Authorization: authHeader },
+          },
+        );
 
         userInfo = await response.json();
         if (!response.ok) {
-          console.debug(userInfo)
-          throw new Error("Failed to fetch user data: " + JSON.stringify(userInfo));
+          console.debug(userInfo);
+          throw new Error(
+            "Failed to fetch user data: " + JSON.stringify(userInfo),
+          );
         }
-
       }
 
       const newConfig = {
