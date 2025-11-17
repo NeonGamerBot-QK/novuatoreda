@@ -25,18 +25,40 @@ export function useAccount() {
     loadConfig();
   }, []);
 
-  const saveAccount = async (username: string, password: string) => {
+  const saveAccount = async (user: string, pass: string, userData?: any) => {
     try {
+      let userInfo = userData;
+
+      if (!userInfo) {
+        const authHeader = `Basic ${Buffer.from(`${user}:${pass}`).toBase64()}`;
+
+        const response = await fetch("http://localhost:3000/get_my_server_info", {
+          method: "POST",
+          headers: { "Authorization": authHeader },
+        });
+
+
+        userInfo = await response.json();
+        if (!response.ok) {
+          console.debug(userInfo)
+          throw new Error("Failed to fetch user data: " + JSON.stringify(userInfo));
+        }
+
+      }
+
       const newConfig = {
-        username,
-        password,
+        username: user,
+        password: pass,
         setup: true,
-        passwordHash: Bun.password.hashSync(password),
+        userData: userInfo,
       };
       await Bun.write("./data.json", JSON.stringify(newConfig, null, 2));
       setConfig(newConfig);
+
+      process.exit(0);
     } catch (e) {
       setError(e as Error);
+      throw e;
     }
   };
 

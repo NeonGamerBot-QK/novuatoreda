@@ -5,6 +5,7 @@ import http from "http";
 import { Server } from "socket.io";
 const db = new Database("db.sqlite");
 const app = express();
+app.use(express.json());
 const server = http.createServer(app);
 const io = new Server(server);
 const registerUserTransaction = db.prepare(
@@ -19,16 +20,25 @@ app.get("/space_rocks", async (req, res) => {
 
 app.post("/register_account", async (req, res) => {
   const { name, passhash } = req.body;
+
+  if (!name || !passhash) {
+    return res.status(400).json({ message: "name and passhash required" });
+  }
+
   try {
-    await registerUserTransaction.run(name, passhash);
+    registerUserTransaction.run(name, passhash);
     res.status(201).json({ message: "OK, created :)" });
-  } catch (e) {
-    res.status(500).json({ e });
+  } catch (e: any) {
+    if (e.message?.includes("UNIQUE")) {
+      res.status(409).json({ message: "username already exists" });
+    } else {
+      res.status(500).json({ message: e.message || "server error" });
+    }
   }
 });
 
 async function loginMiddleware(req, res, next) {
-  const authHeader = req.headers["Authorization"];
+  const authHeader = req.headers["authorization"];
   if (!authHeader) {
     return res.status(401).json({
       message: "no auth key??",
@@ -115,7 +125,9 @@ io.on("connection", (socket) => {
   const user = socket.data.user;
   console.log(`User ${user.name} connected`);
   active_users.push(user);
-
+  socket.on("rocks_req", async () => {
+    socket.emit('rocks', await db.query("select * from seeded_rocks;").all())
+  })
   socket.on("disconnect", () => {
     const index = active_users.findIndex((u) => u.id === user.id);
     if (index !== -1) active_users.splice(index, 1);
