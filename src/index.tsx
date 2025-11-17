@@ -17,17 +17,17 @@ const Counter = () => {
 
       const socket = socketIoClient("http://localhost:3000", {
         extraHeaders: {
-          authorization: authHeader
-        }
+          authorization: authHeader,
+        },
       });
 
       socket.on("connect", () => {
         setConnected(true);
 
         fetch("http://localhost:3000/space_rocks")
-          .then(res => res.json())
+          .then((res) => res.json())
           .then((data: any) => setRocks(data))
-          .catch(e => setError(e.message));
+          .catch((e) => setError(e.message));
       });
 
       socket.on("connect_error", (e) => {
@@ -64,14 +64,23 @@ const Counter = () => {
   return (
     <Box flexDirection="column" padding={1}>
       <Box borderStyle="round" borderColor="green" padding={1} marginBottom={1}>
-        <Text bold color="green">✓ Connected as {account.config.username}</Text>
+        <Text bold color="green">
+          ✓ Connected as {account.config.username}
+        </Text>
         {account.config.userData && (
           <Text dimColor> (ID: {account.config.userData.id})</Text>
         )}
       </Box>
 
-      <Box flexDirection="column" borderStyle="single" borderColor="cyan" padding={1}>
-        <Text bold color="cyan">🪨 Space Rocks ({rocks.length})</Text>
+      <Box
+        flexDirection="column"
+        borderStyle="single"
+        borderColor="cyan"
+        padding={1}
+      >
+        <Text bold color="cyan">
+          🪨 Space Rocks ({rocks.length})
+        </Text>
         <Box flexDirection="column" marginTop={1}>
           {rocks.map((rock, i) => (
             <Box key={i} marginY={0}>
